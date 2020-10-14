@@ -19,12 +19,18 @@ void Allocator::makeAllocator(size_t max_size) {
         base = new char[max_size];
         offset = base;
     }
-    catch(bad_alloc) {}
+    catch(bad_alloc) {
+        this->max_size = 0;
+        free_size = 0;
+        base = nullptr;
+        offset = nullptr;
+    }
 }
 
 char* Allocator::alloc(size_t size) {
-    if (free_size < size) 
+    if ((free_size < size) || (size < 0)) {
         return nullptr;
+    }
     else {
         free_size -= size;
         char* result = offset;

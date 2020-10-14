@@ -1,3 +1,6 @@
+#ifndef ALLOCATOR_H
+#define ALLOCATOR_H
+
 #include <iostream>
 
 using namespace std;
@@ -15,3 +18,5 @@ public:
     char* alloc(size_t size);
     void reset();
 };
+
+#endif
