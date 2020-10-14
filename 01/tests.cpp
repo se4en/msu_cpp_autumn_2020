@@ -35,16 +35,6 @@ void reset_test() {
         FAIL("reset", static_cast<const void*>(ptr_2), static_cast<const void*>(ptr_1))
 }
 
-void negative_allocator_test() {
-    Allocator alc;
-    alc.makeAllocator(-10);
-    char* ptr = alc.alloc(5);
-    if (ptr==nullptr) 
-        OK("negative_allocator", static_cast<const void*>(ptr), "nullptr")
-    else
-        FAIL("negative_allocator", static_cast<const void*>(ptr), "nullptr")
-}
-
 void negative_alloc_test() {
     Allocator alc;
     alc.makeAllocator(60);
@@ -55,11 +45,21 @@ void negative_alloc_test() {
         FAIL("negative_alloc", static_cast<const void*>(ptr), "nullptr")
 }
 
+void negative_allocator_test() {
+    Allocator alc;
+    alc.makeAllocator(-10);
+    char* ptr = alc.alloc(5);
+    if (ptr==nullptr) 
+        OK("negative_allocator", static_cast<const void*>(ptr), "nullptr")
+    else
+        FAIL("negative_allocator", static_cast<const void*>(ptr), "nullptr")
+}
+
 int main() {
     default_work_test();
     big_alloc_test();
     reset_test();
-    negative_allocator_test();
     negative_alloc_test();
+    negative_allocator_test();
     return 0;
 }
