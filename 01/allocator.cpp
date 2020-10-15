@@ -16,8 +16,10 @@ void Allocator::makeAllocator(size_t max_size) {
     try {
         this->max_size = max_size;
         free_size = max_size;
+        if (base!=nullptr)
+            delete[] base;
         base = new char[max_size];
-        offset = base;
+        offset = base;  
     }
     catch(bad_alloc) {
         this->max_size = 0;

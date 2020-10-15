@@ -1,7 +1,7 @@
 CC=g++
 FLAGS=-std=c++17 -Wall -pedantic
 
-all: test
+all: clean allocator.o tests.o
 
 allocator.o: 
 	$(CC) $(FLAGS) allocator.cpp -c
@@ -10,7 +10,7 @@ tests.o: allocator.o
 	$(CC) $(FLAGS) tests.cpp -c
 	$(CC) $(FLAGS) allocator.o tests.o -o test
 
-test: tests.o
+test: clean tests.o
 	./test
 
 valgrind: tests.o
