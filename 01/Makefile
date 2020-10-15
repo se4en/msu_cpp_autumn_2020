@@ -13,8 +13,8 @@ tests.o: allocator.o
 test: clean tests.o
 	./test
 
-valgrind: tests.o
-	valgrind --quiet ./test
+valgrind: clean tests.o
+	valgrind ./test
 
 clean:
 	rm -f *.o

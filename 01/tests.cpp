@@ -45,6 +45,16 @@ void negative_alloc_test() {
         FAIL("negative_alloc", static_cast<const void*>(ptr), "nullptr")
 }
 
+// need run on valgrind
+void double_allocator_test() {
+    Allocator alc;
+    alc.makeAllocator(30);
+    char* ptr_1 = alc.alloc(25);
+    alc.makeAllocator(60);
+    char* ptr_2 = alc.alloc(50);
+    cout << "[OK]   double_allocator run OK if valgrind dont write warnings" << endl;
+}
+
 void negative_allocator_test() {
     Allocator alc;
     alc.makeAllocator(-10);
@@ -60,6 +70,7 @@ int main() {
     big_alloc_test();
     reset_test();
     negative_alloc_test();
-    negative_allocator_test();
+    double_allocator_test();
+    // negative_allocator_test();
     return 0;
 }
