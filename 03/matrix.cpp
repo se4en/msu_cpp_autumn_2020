@@ -46,7 +46,7 @@ Matrix::Matrix(const Matrix &matr) {
     n_rows = matr.n_rows;
     m_columns = matr.m_columns;
     data = new int[n_rows*m_columns];
-    for (int i=0; i<n_rows*m_columns; ++i)
+    for (uint32_t i=0; i<n_rows*m_columns; ++i)
         data[i] = matr.data[i];
 }
 
@@ -66,14 +66,14 @@ int Matrix::get_columns() const {
 
 Matrix& Matrix::operator=(const Matrix &matr) {
     if (n_rows==matr.n_rows && m_columns==matr.m_columns)
-        for (int i=0; i<n_rows*m_columns; ++i)
+        for (uint32_t i=0; i<n_rows*m_columns; ++i)
             data[i] = matr.data[i];
     else {
         delete[] data;
         n_rows = matr.n_rows;
         m_columns = matr.m_columns;
         data = new int[n_rows*m_columns];
-        for (int i=0; i<n_rows*m_columns; ++i)
+        for (uint32_t i=0; i<n_rows*m_columns; ++i)
             data[i] = matr.data[i];
     }
     return *this;
@@ -98,7 +98,7 @@ const Matrix_proxy Matrix::operator[](uint32_t index) const {
 }
 
 Matrix& Matrix::operator*=(int digit) {
-    for (int i=0; i<n_rows*m_columns; ++i)
+    for (uint32_t i=0; i<n_rows*m_columns; ++i)
         data[i] *= digit;
     return *this;
 }
@@ -107,8 +107,8 @@ Matrix Matrix::operator+(Matrix obj) const {
     if (n_rows!=obj.n_rows || m_columns!=obj.m_columns)
         throw std::invalid_argument("ERROR: matrices must be of the same dimension");
     Matrix new_obj(obj.n_rows, obj.m_columns);
-    for (int i=0; i<obj.n_rows; ++i)
-        for (int j=0; j<obj.m_columns; ++j)
+    for (uint32_t i=0; i<obj.n_rows; ++i)
+        for (uint32_t j=0; j<obj.m_columns; ++j)
             new_obj[i][j] = (*this)[i][j] + obj[i][j];
     return new_obj;
 }
@@ -116,7 +116,7 @@ Matrix Matrix::operator+(Matrix obj) const {
 bool Matrix::operator==(const Matrix obj) const {
     if (n_rows!=obj.n_rows || m_columns!=obj.m_columns)
         return false;
-    for (int i=0; i<obj.n_rows*obj.m_columns; ++i) 
+    for (uint32_t i=0; i<obj.n_rows*obj.m_columns; ++i) 
         if ((*this).data[i]!=obj.data[i])
             return false;
     return true;
@@ -124,17 +124,15 @@ bool Matrix::operator==(const Matrix obj) const {
 
 bool Matrix::operator!=(const Matrix obj) const {
     if (n_rows!=obj.n_rows || m_columns!=obj.m_columns)
-        throw true;
-    for (int i=0; i<obj.n_rows; ++i)
-        for (int j=0; j<obj.m_columns; ++j)
+        return true;
+    for (uint32_t i=0; i<obj.n_rows; ++i)
+        for (uint32_t j=0; j<obj.m_columns; ++j)
             if ((*this)[i][j]!=obj[i][j])
                 return true;
     return false;
 }
 
 std::ostream& operator<<(std::ostream& os, const Matrix& obj) {
-    int n_rows = obj.get_rows();
-    int m_columns = obj.get_columns();
     for (int i=0; i<obj.get_rows(); ++i) {
         for (int j=0; j<obj.get_columns(); ++j)
             os << std::setw(4) << obj[i][j];

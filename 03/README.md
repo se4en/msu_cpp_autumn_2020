@@ -1,8 +1,8 @@
-Класс Allocator описан в файле allocator.h, тесты находятся в tests.cpp.
+Классы Matrix и Matrix_proxy описаны в файле matrix.h, тесты находятся в test.cpp.
+В некоторых методах пробрасываются исключения 
+<pre>std::out_of_range\nstd::invalid_argument</pre>
+Для данного поведения сделал соответствующие тесты.
 Собирать следует командной:
 <pre>make</pre>
 Запускать тесты следует командой:
 <pre>make test</pre>
-Запускать тесты под valgrind'ом:
-<pre>make valgrind</pre>
-для тестирования утечки памяти.

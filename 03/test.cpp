@@ -48,7 +48,7 @@ void get_fake_elem_test() {
     Matrix mt(2, 2);
     bool ok = false;
     try {
-        int buf = mt[2][0];
+        mt[2][0];
     }
     catch(out_of_range& ex) {
         OK("wrong_row", ex.what(), "out_of_range");
@@ -61,7 +61,7 @@ void get_fake_elem_test() {
         FAIL("wrong_row", "none", "out_of_range");
     ok = false;
     try {
-        int buf = mt[1][2];
+        mt[1][2];
     }
     catch(out_of_range& ex) {
         OK("wrong_column", ex.what(), "out_of_range");
@@ -81,11 +81,11 @@ void mul_test() {
     mt[1][0] = 3;
     mt[1][1] = 4;
     mt *= 2;
-    if (mt[0][0]==1 && mt[0][1]==2 && mt[1][0]==3 && mt[1][1]==4) 
-        OK("multiplication", "1 2 3 4", "1 2 3 4")
+    if (mt[0][0]==2 && mt[0][1]==4 && mt[1][0]==6 && mt[1][1]==8) 
+        OK("multiplication", "2468", "2468")
     else
         FAIL("multiplication", to_string(mt[0][0]) + to_string(mt[0][1]) +
-            to_string(mt[1][0]) + to_string(mt[1][1]), "1 2 3 4")
+            to_string(mt[1][0]) + to_string(mt[1][1]), "2468")
 }
 
 void right_sum_test() {
@@ -102,10 +102,10 @@ void right_sum_test() {
     Matrix mt3(2, 2);
     mt3 = mt1 + mt2;  
     if (mt3[0][0]==5 && mt3[0][1]==5 && mt3[1][0]==5 && mt3[1][1]==5) 
-        OK("multiplication", "5 5 5 5", "5 5 5 5")
+        OK("multiplication", "5555", "5555")
     else
         FAIL("multiplication", to_string(mt3[0][0]) + to_string(mt3[0][1]) +
-            to_string(mt3[1][0]) + to_string(mt3[1][1]), "5 5 5 5")
+            to_string(mt3[1][0]) + to_string(mt3[1][1]), "5555")
 }
 
 void wrong_sum_test() {
@@ -160,7 +160,7 @@ void false_compare_test() {
         FAIL("false_comparation", "true", "false")
     Matrix mt3(2, 1);
     mt3[0][0] = 1;
-    mt3[1][0] = 3;
+    mt3[0][0] = 3;
     if (mt1!=mt3) 
         OK("false_comparation", "false", "false")
     else
