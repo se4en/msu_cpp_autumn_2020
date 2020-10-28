@@ -24,20 +24,20 @@ std::string Parser::read_next_token(const std::string &text) {
     }
 
 Parser::Parser() : 
-        cur_pos(0), text_lenght(0),
-        start_callback(nullptr),
-        digit_token_callback(nullptr),
-        word_token_callback(nullptr),
-        end_callback(nullptr) {
-            start_callback = base_start_callback;
+        cur_pos(0), text_lenght(0)
+        //start_callback(nullptr),
+        /*end_callback(nullptr)*/ {
+            //start_callback = base_start_callback;
+            digit_token_callback = base_digit_token_callback;
+            word_token_callback = base_word_token_callback;
         }
 
 void Parser::parse(const std::string &text) {
     text_lenght = text.length();
-    start_callback();
+    //start_callback();
     while (cur_pos < text_lenght) {
         std::string token = read_next_token(text);
-        //isdigit(token) ? digit_token_callback(token) : word_token_callback(token);
+        isdigit(token) ? digit_token_callback(token) : word_token_callback(token);
     }
     //end_callback();
     cur_pos = 0;
@@ -46,21 +46,21 @@ void Parser::parse(const std::string &text) {
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void Parser::set_start_callback(callback_func_ptr new_callback) {
-    start_callback = new_callback;
-}
+//void Parser::set_start_callback(callback_func_ptr new_callback) {
+//    start_callback = new_callback;
+//}
 
-void Parser::set_digit_token_callback(token_callback_func_ptr new_callback) {
+void Parser::set_digit_token_callback(Token_callback_func_ptr new_callback) {
     digit_token_callback = new_callback;
 }
 
-void Parser::set_word_token_callback(token_callback_func_ptr new_callback) {
+void Parser::set_word_token_callback(Token_callback_func_ptr new_callback) {
     word_token_callback = new_callback;
 }
 
-void Parser::set_end_callback(callback_func_ptr new_callback) {
-    end_callback = new_callback;
-}
+//void Parser::set_end_callback(callback_func_ptr new_callback) {
+ //   end_callback = new_callback;
+//}
 
 int main() {
     Parser parser;
