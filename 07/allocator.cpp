@@ -36,7 +36,7 @@ void allocator<T>::deallocate(T* ptr) const
 template<class T>
 void allocator<T>::construct(T* ptr, T& value) 
 {
-    new((void *)ptr) value;
+    ((T*)ptr)->T(value);
 }
 
 template<class T>

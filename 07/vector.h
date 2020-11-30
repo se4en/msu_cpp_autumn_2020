@@ -3,20 +3,22 @@
 
 #include "iterator.h"
 #include "allocator.h"
+#include <utility>
 
 #define REALL_SIZE 16
 
 template <class T>
 class vector {
-    T* data;
-    uint32_t size;
-    uint32_t capacity;
+    T* data_;
+    uint32_t size_;
+    uint32_t capacity_;
+    allocator<T> al;
 public:
     vector(); // +
     vector(const vector<T>& other); // +
 
     T& operator[](uint32_t index); // +
-    void vector<T>::reserve(uint32_t capacity); // +
+    void reserve(uint32_t capacity); // +
     void push_back(const T& value); //  +
     void pop_back(); // +
     template<typename... Args>
