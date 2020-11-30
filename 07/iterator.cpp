@@ -1,78 +1,69 @@
-#include <iostream>
-#include <set>
-#include <vector>
+#include "iterator.h"
 
-template <class Iter>
-class OddIterator
-    : public std::iterator<std::forward_iterator_tag, typename Iter::value_type>
-{
-    Iter current_;
-    Iter end_;
-
-    void findNext()
-    {
-        while (current_ != end_)
-        {
-            if (*current_ % 2 == 0)
-                return;
-            ++current_;
-        }
-    }
-
-public:
-    OddIterator(Iter&& begin, Iter&& end)
-        : current_(std::move(begin))
-        , end_(std::move(end))
-    {
-        findNext();
-    }
-
-    bool operator==(const OddIterator& other) const
-    {
-        return current_ == other.current_;
-    }
-
-    bool operator!=(const OddIterator& other) const
-    {
-        return !(*this == other);
-    }
-
-    void operator++()
-    {
-        if (current_ != end_)
-        {
-            ++current_;
-            findNext();
-        }
-    }
-
-    int operator*() const
-    {
-        return *current_;
-    }
-};
-
-template <class Container>
-OddIterator<typename Container::const_iterator> getBegin(const Container& data)
-{
-    return OddIterator<typename Container::const_iterator>(data.cbegin(), data.cend());
+template<class T>
+iterator<T>::iterator(T* ptr, uint32_t ind) {
+    data = ptr;
+    index = ind;
 }
 
-template <class Container>
-OddIterator<typename Container::const_iterator> getEnd(const Container& data)
-{
-    return OddIterator<typename Container::const_iterator>(data.cend(), data.cend());
+template <class T>
+iterator<T>& iterator<T>::operator--() {
+    --index; 
+    return *this;
 }
 
-int main()
-{
-    std::vector<int> data1 = { 9, 8, 1, 3, 4, 5, 6 };
-    std::for_each(getBegin(data1), getEnd(data1), [](int x) { std::cout << x << '\n'; });
+template <class T>
+iterator<T>& iterator<T>::operator++() {
+    ++index; 
+    return *this;
+}
 
-    std::cout << '\n';
+template <class T>
+T& iterator<T>::operator*() const {
+    return data[index];
+}
 
-    std::set<int> data2(data1.begin(), data1.end());
-    std::for_each(getBegin(data2), getEnd(data2), [](int x) { std::cout << x << '\n'; });
+template<class T>
+bool operator==(iterator<T>& left, iterator<T>& right) {
+    return (left.data==right.data) && (left.index==right.index);
+}
 
-    return 0;
+template<class T>
+bool operator!=(iterator<T>& left, iterator<T>& right) {
+    return !operator==(left, right);
+}
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+template<class T>
+reverse_iterator<T>::reverse_iterator(T* ptr, uint32_t ind) {
+    data = ptr;
+    index = ind;
+}
+
+template <class T>
+reverse_iterator<T>& reverse_iterator<T>::operator--() {
+    ++index; 
+    return *this;
+}
+
+template <class T>
+reverse_iterator<T>& reverse_iterator<T>::operator++() {
+    --index; 
+    return *this;
+}
+
+template <class T>
+T& reverse_iterator<T>::operator*() const {
+    return data[index];
+}
+
+template<class T>
+bool operator==(reverse_iterator<T>& left, reverse_iterator<T>& right) {
+    return (left.data==right.data) && (left.index==right.index);
+}
+
+template<class T>
+bool operator!=(reverse_iterator<T>& left, reverse_iterator<T>& right) {
+    return !operator==(left, right);
 }
