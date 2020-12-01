@@ -1,20 +1,10 @@
 CC=g++
 FLAGS=-std=c++17 -Wall -pedantic
 
-all: clean allocator.o iterator.o vector.o tests.o
+all: clean tests.o
 
-allocator.o: 
-	$(CC) $(FLAGS) allocator.cpp -c
-
-iterator.o: 
-	$(CC) $(FLAGS) iterator.cpp -c
-
-vector.o: 
-	$(CC) $(FLAGS) vector.cpp -c
-
-tests.o: allocator.o iterator.o vector.o
-	$(CC) $(FLAGS) tests.cpp -c
-	$(CC) $(FLAGS) allocator.o iterator.o vector.o tests.o -o test
+tests.o: 
+	$(CC) $(FLAGS) tests.cpp -o test
 
 test: clean tests.o
 	./test
