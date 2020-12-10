@@ -1,14 +1,10 @@
 CC=g++
 FLAGS=-std=c++17 -Wall -pedantic
 
-all: clean format.o test.o
-
-format.o: 
-	$(CC) $(FLAGS) format.cpp -c
+all: clean test.o
 
 test.o: format.o
-	$(CC) $(FLAGS) test.cpp -c
-	$(CC) $(FLAGS) format.o test.o -o test
+	$(CC) $(FLAGS) test.cpp  -o test
 
 test: clean test.o
 	./test

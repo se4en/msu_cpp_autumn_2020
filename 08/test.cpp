@@ -10,10 +10,9 @@ int main() {
  
     Thread_pool pool(4);
 
-    std::cout << "in main 1" << std::endl;
 
     auto task1 = pool.exec(boo, A());
-    task1.get();
+    std::cout << task1.get() << std::endl;
 
     auto task2 = pool.exec([]() { return 1; });
     task2.get();

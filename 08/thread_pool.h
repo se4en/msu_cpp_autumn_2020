@@ -13,9 +13,9 @@ class Thread_pool {
     std::vector<std::thread> pool;
     std::queue< std::function<void()>> tasks;
 
+    bool stop;
     std::mutex tasks_mutex;
     std::condition_variable condition;
-    bool stop;
 
     // void plug_function();
 public:
@@ -42,54 +42,41 @@ void Thread_pool::plug_function() {
 */
 
 Thread_pool::Thread_pool(size_t pool_size) {
-    std::cout << "construct" << std::endl;
     stop = false;
     for(size_t i=0; i<pool_size; ++i)
-        pool.emplace_back( // it doesnt work with member function (
+        pool.emplace_back( // it doesnt work with member function
             [this] {
                 while(1) {
                     std::function<void()> task;
                     {
                         std::unique_lock<std::mutex> lock(tasks_mutex);
-                        condition.wait(lock, [this] {return this->stop || !this->tasks.empty();});
-                        if (this->stop)
-                            std::cout << "stop: " << "empty: " << tasks.empty() << std::endl;
-                        if(this->stop && this->tasks.empty()) {
-                            std::cout << "return" << std::endl;
+                        condition.wait(lock, [this] {return stop || !tasks.empty();});
+                        if (stop && tasks.empty()) 
                             return;
-                        }
-                        task = std::move(this->tasks.front());
+                        task = std::move(tasks.front());
                         tasks.pop();  
                     }
                     task();
                 }
             }
         );
-    
-    std::cout << "end construct" << std::endl;
 }
 
 Thread_pool::~Thread_pool() {
-
-    std::cout << "destruct" << std::endl;
     {
-        std::unique_lock<std::mutex> lock(tasks_mutex);
         stop = true;
+        std::unique_lock<std::mutex> lock(tasks_mutex);
     }
-    //std::vector<std::thread>::iterator it = pool.begin();
-    
-    std::cout << "start join in destr" << std::endl;
-    //stop = true;
-    /*for(; it!=pool.end(); ++it) {
-
+    /* it doesnt work
+    std::vector<std::thread>::iterator it = pool.begin();
+    for(; it!=pool.end(); ++it) {
         std::cout << "join" << std::endl;
         (*it).join();
-    }*/
+    }
+    */
     condition.notify_all();
     for(std::thread &worker: pool)
-        worker.join();
-    
-    std::cout << "end destruct" << std::endl;
+        worker.join();    
 }
 
 template <class Func, class... Args>

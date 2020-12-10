@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#include <iostream>
+
 #define PTRS_STEP 4
 
 template <class T>
@@ -73,7 +75,9 @@ void allocator<T>::deallocate(T* ptr) const
 template<class T>
 void allocator<T>::construct(T* ptr, const T& value) 
 {
-    *((T*)ptr) = value;
+    std::cout << "start_al_constr" << std::endl;
+    new((void*)ptr) T(value);
+    std::cout << "end_al_constr" << std::endl;
 }
 
 template<class T>

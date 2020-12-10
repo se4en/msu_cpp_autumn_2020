@@ -19,12 +19,12 @@ class iterator {
 public:
     iterator(T* ptr, uint32_t index);
 
-    iterator& operator--();
-    iterator& operator++();
+    iterator operator--();
+    iterator<T> operator++();
     T& operator*() const;
 
-    friend bool operator==<T>(iterator& left, iterator& right);
-    friend bool operator!=<T>(iterator& left, iterator& right);
+    friend bool operator==<T>(iterator<T>& left, iterator<T>& right);
+    friend bool operator!=<T>(iterator<T>& left, iterator<T>& right);
 };
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -62,13 +62,13 @@ iterator<T>::iterator(T* ptr, uint32_t ind) {
 }
 
 template <class T>
-iterator<T>& iterator<T>::operator--() {
+iterator<T> iterator<T>::operator--() {
     --index; 
     return *this;
 }
 
 template <class T>
-iterator<T>& iterator<T>::operator++() {
+iterator<T> iterator<T>::operator++() {
     ++index; 
     return *this;
 }

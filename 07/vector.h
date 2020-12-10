@@ -30,11 +30,11 @@ public:
     void clear(); // +
     void resize(uint32_t new_size); // +
 
-    iterator<T>& begin() const; // +
-    iterator<T>& end() const; // +
+    iterator<T> begin() const; // +
+    iterator<T> end() const; // +
     
-    reverse_iterator<T>& rbegin() const; // +
-    reverse_iterator<T>& rend() const; // +
+    reverse_iterator<T> rbegin() const; // +
+    reverse_iterator<T> rend() const; // +
 };
 
 //===================================================================================================
@@ -92,10 +92,9 @@ void vector<T>::push_back(const T& value) {
     size_++;
 }
 
-
 template<class T>
 void vector<T>::pop_back() {
-    al.destruct(data_ + size_);
+    al.destroy(data_ + size_);
     --size_;
 }
 
@@ -104,8 +103,8 @@ template<class... Args>
 void vector<T>::emplace_back(Args&&... args) {
     if (size_==capacity_)
         reserve(capacity_ + REALL_SIZE);
-    size_++;
     al.construct(data_ + size_, std::move(T(std::forward<Args>(args)...))); // data[++size] = std::move(T(std::forward<Args>(args)...));
+    size_++;
 }
 
 template<class T>
@@ -149,23 +148,23 @@ void vector<T>::resize(uint32_t new_size) {
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 template<class T>
-iterator<T>& vector<T>::begin() const {
-    return iterator(data_, 0);
+iterator<T> vector<T>::begin() const {
+    return iterator<T>(data_, 0);
 }
 
 template<class T>
-iterator<T>& vector<T>::end() const {
-    return iterator(data_, size_ + 1);
+iterator<T> vector<T>::end() const {
+    return iterator<T>(data_, size_ + 1);
 }
 
 template<class T>
-reverse_iterator<T>& vector<T>::rbegin() const {
-    return reverse_iterator(data_, size_);
+reverse_iterator<T> vector<T>::rbegin() const {
+    return reverse_iterator<T>(data_, size_);
 }
 
 template<class T>
-reverse_iterator<T>& vector<T>::rend() const {
-    return reverse_iterator(data_, -1);
+reverse_iterator<T> vector<T>::rend() const {
+    return reverse_iterator<T>(data_, -1);
 }
 
 #endif
