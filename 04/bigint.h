@@ -1,29 +1,36 @@
+#ifndef BIGINT_H
+#define BIGINT_H
+
 #include <iostream>
-#include <limits.h>
+#include <cmath>
 
-class BigInt {
+
+class Big_int {
     bool minus;
-    uint64_t* array;
-    const uint8_t LLMAX_LEN = 19;
-    uint64_t len;
+    // элементы массива - двузначные числа
+    uint32_t BASE = 9; // 900000000
+    uint32_t* array; 
+    uint32_t len;
 public:
-    BigInt(std::string int_str);
-    ~BigInt();
+    Big_int();
+    Big_int(std::string int_str);
+    Big_int(const Big_int& obj);
+    Big_int& operator=(const Big_int& obj);
+    ~Big_int();
 
-    BigInt(const BigInt& obj);
-    BigInt& operator=(const BigInt& obj);
+    const Big_int operator-() const;
+    const Big_int operator+(const Big_int& obj) const;
+    const Big_int operator-(const Big_int& obj) const;
+    const Big_int operator*(const Big_int& obj) const;
 
-    const BigInt operator-() const;
-    const BigInt operator+(const BigInt& obj) const;
-    const BigInt operator-(const BigInt& obj) const;
-    const BigInt operator*(const BigInt& obj) const;
+    bool operator<(const Big_int& obj) const;
+    bool operator<=(const Big_int& obj) const;
+    bool operator>(const Big_int& obj) const;
+    bool operator>=(const Big_int& obj) const;
+    bool operator==(const Big_int& obj) const;
+    bool operator!=(const Big_int& obj) const;
 
-    bool operator<(const BigInt& obj) const;
-    bool operator<=(const BigInt& obj) const;
-    bool operator>(const BigInt& obj) const;
-    bool operator>=(const BigInt& obj) const;
-    bool operator==(const BigInt& obj) const;
-    bool operator!=(const BigInt& obj) const;
-
-    friend std::ostream& operator<<(std::ostream& os, const BigInt& obj);
+    friend std::ostream& operator<<(std::ostream& os, const Big_int& obj);
 };
+
+#endif 
