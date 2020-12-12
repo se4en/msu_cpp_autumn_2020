@@ -1,6 +1,10 @@
 #include "bigint.h"
 
-Big_int::Big_int() {}
+Big_int::Big_int() {
+    len = 0;
+    array = nullptr;
+    minus = false;
+}
 
 Big_int::Big_int(std::string int_str) {
     // 1234567 stored as 67, 45, 23, 1 
@@ -93,6 +97,21 @@ Big_int::~Big_int() {
     delete[] array;
 }
 
+// delete non-significant zeros
+void Big_int::_resize() {
+    uint64_t t = len - 1, ctr = 0;
+    while(!array[t--])
+        ++ctr;
+    if (ctr) {
+        uint32_t* new_array = new uint32_t[len - ctr];
+        len -= ctr;
+        for (uint64_t i=0; i<len; ++i)
+            new_array[i] = array[i];
+        delete[] array;
+        array = new_array;
+    }
+}
+
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 const Big_int Big_int::operator-() const {
@@ -105,8 +124,11 @@ const Big_int Big_int::operator+(const Big_int& obj) const {
     if (!minus && !obj.minus) {
         bool plus_one = false;
         Big_int result;
+        result.minus = false;
         result.len = std::max(len, obj.len);
         result.array = new uint32_t[result.len];
+        for (uint64_t t=0; t<result.len; ++t)
+            result.array[t] = 0;
         uint64_t i = 0;
 
         for (; i<std::min(len, obj.len); ++i) {
@@ -135,6 +157,9 @@ const Big_int Big_int::operator+(const Big_int& obj) const {
                 plus_one = false;
             }
         }
+        
+        result._resize();
+        return result;
     }
     else if (minus && obj.minus) {
         return -((-(*this)) + (-obj));
@@ -152,38 +177,38 @@ const Big_int Big_int::operator-(const Big_int& obj) const {
         if ((*this)<obj) 
             return -(obj - (*this));
 
-        bool plus_one = false;
+        bool minus_one = false;
         Big_int result;
+        result.minus = false;
         result.len = std::max(len, obj.len);
         result.array = new uint32_t[result.len];
+        for (uint64_t t=0; t<result.len; ++t)
+            result.array[t] = 0;
         uint64_t i = 0;
 
-        for (; i<std::min(len, obj.len); ++i) {
-            result.array[i] = array[i] + obj.array[i];
-            if (plus_one) {
-                result.array[i]++;
-                plus_one = false;
-            }
-            if (result.array[i]>=int(pow(10, BASE))) {
-                result.array[i]-=int(pow(10, BASE));
-                plus_one = true;
+        for (; i<obj.len; ++i) {
+            if (array[i] - (minus_one ? 1 : 0) < obj.array[i]) {
+                minus_one = true;
+            }   
+            else {
+                result.array[i] = array[i] - (minus_one ? 1 : 0) - obj.array[i];
+                minus_one = false;
             }
         }
 
         for (; i<len; ++i) {
-            result.array[i] = array[i];
-            if (plus_one) {
-                result.array[i]++;
-                plus_one = false;
+            if (array[i] - (minus_one ? 1 : 0) < 0) {
+                result.array[i] = std::pow(10, BASE) + array[i] - (minus_one ? 1 : 0);
+                minus_one = true;
+            }   
+            else {
+                result.array[i] = array[i] - (minus_one ? 1 : 0);
+                minus_one = false;
             }
         }
-        for (; i<obj.len; ++i) {
-            result.array[i] = array[i];
-            if (plus_one) {
-                result.array[i]++;
-                plus_one = false;
-            }
-        }
+
+        result._resize();
+        return result;
     }
     else if (minus && obj.minus) {
         return (-obj) - (-(*this));
@@ -200,36 +225,35 @@ const Big_int Big_int::operator*(const Big_int& obj) const {
     if (minus==obj.minus) {
         bool plus_one = false;
         Big_int result;
-        result.len = std::max(len, obj.len);
+        result.minus = false;
+        result.len = len + obj.len;
         result.array = new uint32_t[result.len];
-        uint64_t i = 0;
+        for (uint64_t t=0; t<result.len; ++t)
+            result.array[t] = 0;
+        uint64_t i = 0, j = 0;
 
-        for (; i<std::min(len, obj.len); ++i) {
-            result.array[i] = array[i] + obj.array[i];
-            if (plus_one) {
-                result.array[i]++;
-                plus_one = false;
-            }
-            if (result.array[i]>=int(pow(10, BASE))) {
-                result.array[i]-=int(pow(10, BASE));
-                plus_one = true;
-            }
-        }
-
-        for (; i<len; ++i) {
-            result.array[i] = array[i];
-            if (plus_one) {
-                result.array[i]++;
-                plus_one = false;
-            }
-        }
         for (; i<obj.len; ++i) {
-            result.array[i] = array[i];
-            if (plus_one) {
-                result.array[i]++;
-                plus_one = false;
+            for (j=0; j<len; ++j) {
+                uint64_t mul_res =(uint64_t) obj.array[i]*array[j];
+                uint64_t k = 0; 
+                for (; mul_res; ++k) {
+                    result.array[j + i + k] += (mul_res%uint32_t(std::pow(10, BASE)) + (plus_one ? 1: 0));
+                    mul_res /= std::pow(10, BASE);
+                    plus_one = false;
+                    if (result.array[j + i + k]>=std::pow(10, BASE)) {
+                        result.array[j + i + k]-=std::pow(10, BASE);
+                        plus_one = true;
+                    }
+                }
+                if (plus_one) {
+                    result.array[j + i + k]++;
+                    plus_one = false;
+                }
             }
         }
+
+        result._resize();
+        return result;
     }
     else {
         return -((-(*this))*obj);

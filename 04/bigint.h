@@ -11,6 +11,8 @@ class Big_int {
     uint32_t BASE = 9; // 900000000
     uint32_t* array; 
     uint32_t len;
+
+    void _resize();
 public:
     Big_int();
     Big_int(std::string int_str);

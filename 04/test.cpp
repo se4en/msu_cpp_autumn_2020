@@ -54,6 +54,48 @@ void assignment_test() {
         FAIL("assignment", a, "-987654321098765432109876543210")
 }
 
+void operator_unary_minus_test() {
+    Big_int  a("-9111223987222222222222");
+   
+    if ((-a)==Big_int("9111223987222222222222"))
+        OK("unary_minus", -a, "9111223987222222222222")
+    else
+        FAIL("unary_minus", -a, "9111223987222222222222")
+}
+
+void operator_plus_test() {
+    Big_int  a("91111111111111222222222222222");
+    Big_int b("666666666666666333333333333333");
+    Big_int c = a + b;
+
+    if (c==Big_int("757777777777777555555555555555"))
+        OK("plus", c, "757777777777777555555555555555")
+    else
+        FAIL("plus", c, "757777777777777555555555555555")
+}
+
+void operator_minus_test() {
+    Big_int  a("-91111111111111222222222222222");
+    Big_int b("-666666666666666333333333333333");
+    Big_int c = a - b;
+   
+    if (c==Big_int("575555555555555111111111111111"))
+        OK("minus", c, "575555555555555111111111111111")
+    else
+        FAIL("minus", c, "575555555555555111111111111111")
+}
+
+void operator_mul_test() {
+    Big_int a("111111111111111");
+    Big_int b("-111111111111111");
+    Big_int c = a * b;
+
+    if (c==Big_int("-12345679012345654320987654321"))
+        OK("multiply", c, "-12345679012345654320987654321")
+    else
+        FAIL("multiply", c, "-12345679012345654320987654321")
+}
+
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 int main() {
@@ -62,4 +104,8 @@ int main() {
     operator_less_test();
     operator_more_test();
     assignment_test();
+    operator_unary_minus_test();
+    operator_plus_test();
+    operator_minus_test();
+    operator_mul_test();
 }

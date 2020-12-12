@@ -5,40 +5,47 @@
 #include <string>
 #include <sstream>
 
-class Bad_index : public std::exception {
+class My_exception : public std::exception {
     std::string description_;
     const char* file_name_;
     int line_;
 public:
-    Bad_index(const std::string& desc, const char* file_name, int line) :
+    My_exception(const std::string& desc, const char* file_name, int line) :
         description_(desc), file_name_(file_name), line_(line) {};
     const char* what();
 };
 
-class Bad_bracket : public std::exception {
-    std::string description_;
-    const char* file_name_;
-    int line_;
-    char bracket_;
+const char* My_exception::what() {
+    return (description_ + "\nin file " + file_name_ + " in line " + std::to_string(line_)).c_str() ;
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+class Bad_index : My_exception {
 public:
-    Bad_bracket(const std::string& desc, const char* file_name, int line, char bracket) :
-        description_(desc), file_name_(file_name), line_(line), bracket_(bracket) {};
-    const char* what();
+    Bad_index(const std::string& desc, const char* file_name, int line) :
+        My_exception(desc, file_name, line) {};
 };
 
-//========================================================================-------------------------------------------------------------------------------------------------------------------------
+class Bad_bracket : My_exception {
+public:
+    Bad_bracket(const std::string& desc, const char* file_name, int line) :
+        My_exception(desc, file_name, line) {};
+};
+
+//==================================================================================================================================================================================================
 
 uint8_t get_index(std::string& text, std::string::const_iterator& it) {
     uint8_t result = 0;
     // if no digit in {}
     if (it!=text.end() && *it=='}')
-        throw Bad_index("in get_index()", __FILE__, __LINE__);
+        throw Bad_index("no digit between brackets", __FILE__, __LINE__);
     // read index betwean {}
     while (it!=text.end() && (*it>='0' && *it<='9'))
         result = 10*result + (*it - '0');
     // if didnt met }
     if (it!=text.end() || *it!='}')
-        throw Bad_bracket("in get_index()", __FILE__, __LINE__, '{');
+        throw Bad_bracket("expected '}', find not '}'", __FILE__, __LINE__);
     return result;
 }
 
@@ -73,7 +80,7 @@ std::string format(const std::string text, const Args&... args) {
     while (it!=text.end()) {
         if (*it!='{') {
             if (*it=='}')
-                throw BadBracket("in format()", __FILE__, __LINE__, '}');
+                throw Bad_bracket("find '}', expected not '}'", __FILE__, __LINE__);
             result += *it;
             ++it;
         }
@@ -81,15 +88,15 @@ std::string format(const std::string text, const Args&... args) {
             ++it;
             cur_arg_index = 0;
             if (it!=text.end() && *it=='}')
-                throw BadIndex("in format()", __FILE__, __LINE__);
+                throw Bad_index("expected '}', find not '}'", __FILE__, __LINE__);
             // read index betwean {}
             for (;it!=text.end() && (*it>='0' && *it<='9'); ++it)
                 cur_arg_index = 10*cur_arg_index + (*it - '0');
             // if didnt met }
             if (it==text.end() || *it!='}')
-                throw BadBracket("in format()", __FILE__, __LINE__, '{');
+                throw Bad_bracket("in format()", __FILE__, __LINE__);
             if (cur_arg_index>=num_args)
-                throw BadIndex("in format()", __FILE__, __LINE__);
+                throw Bad_index("in format()", __FILE__, __LINE__);
             // write argument
             std::stringstream str_out = get_argument(cur_arg_index ,args...);
             result += str_out.str();      

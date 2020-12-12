@@ -3,7 +3,7 @@ FLAGS=-std=c++17 -Wall -pedantic
 
 all: clean test.o
 
-test.o: format.o
+test.o: 
 	$(CC) $(FLAGS) test.cpp  -o test
 
 test: clean test.o
