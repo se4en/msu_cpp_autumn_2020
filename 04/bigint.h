@@ -4,11 +4,9 @@
 #include <iostream>
 #include <cmath>
 
-
 class Big_int {
     bool minus;
-    // элементы массива - двузначные числа
-    uint32_t BASE = 9; // 900000000
+    static const uint32_t BASE = 9; // 999999999
     uint32_t* array; 
     uint32_t len;
 
@@ -17,7 +15,9 @@ public:
     Big_int();
     Big_int(std::string int_str);
     Big_int(const Big_int& obj);
+    Big_int(Big_int && obj);
     Big_int& operator=(const Big_int& obj);
+    Big_int& operator=(Big_int && obj);
     ~Big_int();
 
     const Big_int operator-() const;
@@ -35,4 +35,4 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const Big_int& obj);
 };
 
-#endif 
+#endif

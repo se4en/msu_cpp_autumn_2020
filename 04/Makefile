@@ -13,6 +13,9 @@ test.o: bigint.o
 test: clean test.o
 	./test
 
+valgrind: clean test.o
+	valgrind ./test
+
 clean:
 	rm -f *.o
 	rm -f test

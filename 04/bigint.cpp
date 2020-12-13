@@ -75,6 +75,16 @@ Big_int::Big_int(const Big_int& obj) {
     }
 }
 
+Big_int::Big_int(Big_int && obj) {
+    minus = obj.minus;
+    len = obj.len;
+    array = obj.array;
+
+    obj.minus = false;
+    obj.len = 0;
+    obj.array = nullptr;
+}
+
 Big_int& Big_int::operator=(const Big_int& obj) {
     if (len!=obj.len) {
         try { 
@@ -90,6 +100,19 @@ Big_int& Big_int::operator=(const Big_int& obj) {
     }
     for (int i=0; i<len; ++i)
         array[i] = obj.array[i];
+    return (*this);
+}
+
+Big_int& Big_int::operator=(Big_int && obj) {
+    delete [] array;
+    minus = obj.minus;
+    len = obj.len;
+    array = obj.array;
+
+    obj.minus = false;
+    obj.len = 0;
+    obj.array = nullptr;
+
     return (*this);
 }
 
