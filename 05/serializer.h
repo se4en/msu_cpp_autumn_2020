@@ -132,7 +132,7 @@ Error Deserializer::process(T last) {
             return Error::Corrupted_archive;
         }
     }
-    else
+    else 
         return Error::Unsupported_type;
     return Error::No_error;
 }
@@ -159,7 +159,7 @@ Error Deserializer::process(T first, ArgsT... args) {
             return Error::Corrupted_archive;
         }
     }
-    else
+    else 
         return Error::Unsupported_type;
     return process(args...);
 }
