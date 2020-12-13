@@ -1,12 +1,22 @@
 #include "serializer.h"
 
-int main() {
-    struct Data {
-        uint64_t a;
-        bool b;
-        uint64_t c;
-    };
+struct Data {
+    uint64_t a;
+    bool b;
+    uint64_t c;
 
+    template <class Serializer_>
+    Error serialize(Serializer_& serializer) {
+        return serializer(a, b, c);
+    }
+
+    template <class Deerializer_>
+    Error deserialize(Deerializer_& deserializer) {
+        return deserializer(&a, &b, &c);
+    }
+};
+
+void base_work_test() {
     Data x { 1, true, 2 };
 
     std::stringstream stream;
@@ -19,9 +29,9 @@ int main() {
     Deserializer deserializer(stream);
     const Error err = deserializer.load(y);
 
-    assert(err == Error::NoError);
+    std::cout << y.a << y.b << y.c << std::endl;
+}
 
-    assert(x.a == y.a);
-    assert(x.b == y.b);
-    assert(x.c == y.c);
+int main() {
+    base_work_test();
 }
