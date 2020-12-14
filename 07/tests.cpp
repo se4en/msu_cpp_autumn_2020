@@ -4,7 +4,7 @@
 #define FAIL(test, result, right_result) std::cout << "[FAIL] " << test << "\n\tget:  " << result << "\n\twant: " << right_result << std::endl; 
 #define OK(test, result, right_result) std::cout << "[OK]   " << test << "\n\tget:  " << result << "\n\twant: " << right_result << std::endl;
 
-// push_pack and emplace_back test
+// push_pack and emplace_back test start
 
 class Test_class {
     int v_;

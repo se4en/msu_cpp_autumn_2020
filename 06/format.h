@@ -5,51 +5,34 @@
 #include <string>
 #include <sstream>
 
-class My_exception : public std::exception {
+class My_exception {
     std::string description_;
-    const char* file_name_;
-    int line_;
+    int position_;
 public:
-    My_exception(const std::string& desc, const char* file_name, int line) :
-        description_(desc), file_name_(file_name), line_(line) {};
-    const char* what();
+    My_exception(const std::string& desc, int position) :
+        description_(desc), position_(position) {};
+    std::string what();
 };
 
-const char* My_exception::what() {
-    return (description_ + "\nin file " + file_name_ + " in line " + std::to_string(line_)).c_str() ;
+std::string My_exception::what() {
+    return description_ + " at " + std::to_string(position_) + " element.";
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-class Bad_index : My_exception {
+class Bad_index : public My_exception {
 public:
-    Bad_index(const std::string& desc, const char* file_name, int line) :
-        My_exception(desc, file_name, line) {};
+    Bad_index(const std::string& desc, int position) :
+        My_exception(desc, position) {};
 };
 
-class Bad_bracket : My_exception {
+class Bad_bracket : public My_exception {
 public:
-    Bad_bracket(const std::string& desc, const char* file_name, int line) :
-        My_exception(desc, file_name, line) {};
+    Bad_bracket(const std::string& desc, int position) :
+        My_exception(desc, position) {};
 };
 
 //==================================================================================================================================================================================================
-
-uint8_t get_index(std::string& text, std::string::const_iterator& it) {
-    uint8_t result = 0;
-    // if no digit in {}
-    if (it!=text.end() && *it=='}')
-        throw Bad_index("no digit between brackets", __FILE__, __LINE__);
-    // read index betwean {}
-    while (it!=text.end() && (*it>='0' && *it<='9'))
-        result = 10*result + (*it - '0');
-    // if didnt met }
-    if (it!=text.end() || *it!='}')
-        throw Bad_bracket("expected '}', find not '}'", __FILE__, __LINE__);
-    return result;
-}
-
-//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 template <typename First>
 std::stringstream get_argument(const uint8_t ind, const First& first) {
@@ -76,33 +59,40 @@ std::string format(const std::string text, const Args&... args) {
     std::string result;
     uint8_t cur_arg_index = 0;
     uint8_t num_args = sizeof...(Args);
+    uint8_t used_params = 0; // store last serial number of used parameters
     std::string::const_iterator it = text.begin();
     while (it!=text.end()) {
         if (*it!='{') {
             if (*it=='}')
-                throw Bad_bracket("find '}', expected not '}'", __FILE__, __LINE__);
+                throw Bad_bracket("find '}', expected not '}'", it - text.begin());
             result += *it;
             ++it;
-        }
+        } 
+        // if met '{' 
         else { 
             ++it;
             cur_arg_index = 0;
+            // if no index between '{' and '}'
             if (it!=text.end() && *it=='}')
-                throw Bad_index("expected '}', find not '}'", __FILE__, __LINE__);
-            // read index betwean {}
+                throw Bad_index("expected '}', find not '}'", it - text.begin());
+            // read index between {}
             for (;it!=text.end() && (*it>='0' && *it<='9'); ++it)
                 cur_arg_index = 10*cur_arg_index + (*it - '0');
             // if didnt met }
             if (it==text.end() || *it!='}')
-                throw Bad_bracket("in format()", __FILE__, __LINE__);
+                throw Bad_bracket("expected '}', find not '}'", it - text.begin());
             if (cur_arg_index>=num_args)
-                throw Bad_index("in format()", __FILE__, __LINE__);
+                throw Bad_index("wrong index", it - text.begin());
             // write argument
             std::stringstream str_out = get_argument(cur_arg_index ,args...);
+            if (cur_arg_index==used_params+1)
+                ++used_params;
             result += str_out.str();      
             ++it;
         }
     }
+    if (used_params!=num_args-1)
+        throw Bad_index("too much parameters", it - text.begin());
     return result;
 }
 
