@@ -4,49 +4,41 @@
 #define FAIL(test, result, right_result) std::cout << "[FAIL] " << test << "\n\tget:  " << result << "\n\twant: " << right_result << std::endl; 
 #define OK(test, result, right_result) std::cout << "[OK]   " << test << "\n\tget:  " << result << "\n\twant: " << right_result << std::endl;
 
-// push_pack and emplace_back test start
-
-class Test_class {
-    int v_;
-public:
-    Test_class() : v_(0) {};
-    Test_class(int value) : v_(value) { };
-    Test_class(const Test_class& other) { v_ = other.v_ + 1; };
-    Test_class(Test_class&& other) { v_ = std::move(other.v_); v_ *= 2;}
-    int get() { return v_; }
-    ~Test_class() {}
+struct Test_int {
+    int a, b, c;
+    Test_int() {}
+    Test_int(int a,int b,int c) : a(a), b(b), c(c) {}
+    bool operator==(const Test_int& other) const {
+        return (a==other.a) && (b==other.b) && (c==other.c);
+    }
+    friend std::ostream& operator<<(std::ostream& os, const Test_int& obj);
 };
 
-void emplace_back_test() {
-    vector<Test_class> test_vec;
-    test_vec.emplace_back(Test_class(3));
-    std::cout << test_vec.size() << " " << test_vec[0].get() << std::endl;
-    test_vec.push_back(Test_class(3));
-    std::cout << test_vec.size() << " " << test_vec[1].get() << std::endl;
-    
-    if (test_vec[0].get()==3)
-        OK("emplace_back", test_vec[0].get(), 3)
-    else
-        FAIL("emplace_back", test_vec[0].get(), 3)
-    if (test_vec[1].get()==4)
-        OK("push_back", test_vec[1].get(), 4)
-    else
-        FAIL("push_back", test_vec[1].get(), 4)
+std::ostream& operator<<(std::ostream& os, const Test_int& obj) {
+    os << obj.a << obj.b << obj.c;
+    return os;
 }
 
-// test end
+void emplace_back_test() {
+    vector<Test_int> test_vec;
+    test_vec.emplace_back(1, 2, 3);
 
-void operator_test() {
+    if (test_vec[0]==Test_int(1, 2, 3))
+        OK("emplace_back", test_vec[0], "123")
+    else
+        FAIL("emplace_back", test_vec[0], "123")
+}
+
+void push_back_test() {
     vector<int> int_vec;
     int_vec.push_back(4);
     int_vec.push_back(3);
     int_vec.push_back(2);
-    const char* result = "432";
 
     if (int_vec[0]==4 && int_vec[1]==3 && int_vec[2]==2)
-        OK("operator[]", result, int_vec[0] << int_vec[1] << int_vec[2])
+        OK("push back", int_vec[0] << int_vec[1] << int_vec[2], "432")
     else
-        FAIL("operator[]", result, int_vec[0] << int_vec[1] << int_vec[2])
+        FAIL("push back", int_vec[0] << int_vec[1] << int_vec[2], "432")
 }
 
 void size_pop_test() {
@@ -59,13 +51,13 @@ void size_pop_test() {
     int size_2 = char_vec.size();
 
     if (size_1==3 && size_2==2)
-        OK("size", "32", size_1 << size_2)
+        OK("size", size_1 << size_2, "32")
     else
-        FAIL("size", "32", size_1 << size_2)
+        FAIL("size", size_1 << size_2, "32")
     if (char_vec[0]=='a' && char_vec[1]=='b')
         OK("pop_back", "'c'", "'c'")
     else
-        FAIL("pop_back", "'c'", "not 'c'")
+        FAIL("pop_back", "not 'c'", "'c'")
 }
 
 void empty_test() {
@@ -74,7 +66,7 @@ void empty_test() {
     if (int_vec.empty())
         OK("empty", "true", "true")
     else
-        OK("empty", "true", "false")
+        OK("empty", "false", "true")
 }
 
 void clear_test() {
@@ -87,7 +79,7 @@ void clear_test() {
     if (char_vec.size()==0)
         OK("clear", "clean", "clean")
     else
-        FAIL("clear", "clean", "not clean")
+        FAIL("clear", "not clean", "clean")
 }
 
 void begin_rbegin_test() {
@@ -98,31 +90,62 @@ void begin_rbegin_test() {
     reverse_iterator<char> itr = char_vec.rbegin(); ++itr;
     
     if ((*it)=='b')
-        OK("begin", "'b'", (*it))
+        OK("begin", (*it), "b")
     else
-        FAIL("begin", "'b'", (*it))
+        FAIL("begin", (*it), "b")
     if ((*itr)=='a')
-        OK("rbegin", "'a'", (*it))
+        OK("rbegin", (*itr), "a")
     else
-        FAIL("rbegin", "'a'", (*it))
-
+        FAIL("rbegin", (*itr), "a")
 }
 
 void end_rend_test() {
+    vector<char> char_vec;
+    char_vec.push_back('a');
+    char_vec.push_back('b');
+    iterator<char> it = char_vec.end(); --it;
+    reverse_iterator<char> itr = char_vec.rend(); --itr;
     
+    if ((*it)=='b')
+        OK("end", (*it), "b")
+    else
+        FAIL("end", (*it), "b")
+    if ((*itr)=='a')
+        OK("rend", (*itr), "a")
+    else
+        FAIL("rend", (*itr), "a")
 }
 
 void reserve_capacity_test() {
+    vector<char> char_vec;
+    char_vec.push_back('a');
+    char_vec.push_back('b');
+    char_vec.reserve(10);
+    uint32_t cap = char_vec.capacity();
 
+    if (cap==10)
+        OK("reserve", cap, 10)
+    else
+        FAIL("reserve", cap, 10)
 }
     
 void resize_test() {
+    vector<char> char_vec;
+    char_vec.push_back('a');
+    char_vec.push_back('b');
+    uint32_t size_1 = char_vec.size();
+    char_vec.resize(4);
+    uint32_t size_2 = char_vec.size();
 
+    if (size_1==2 && size_2==4)
+        OK("size", size_1 << size_2, "24")
+    else
+        FAIL("size", size_1 << size_2, "24")
 }
 
 int main() {
     emplace_back_test();
-    operator_test();
+    push_back_test();
     size_pop_test();
     empty_test();
     clear_test();

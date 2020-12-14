@@ -2,7 +2,6 @@
 #define ALLOCATOR_H
 
 #include <stdint.h>
-
 #include <iostream>
 
 #define PTRS_STEP 4
@@ -14,6 +13,7 @@ class allocator {
 public:
     allocator();
     allocator(const allocator<T>& other);
+    ~allocator();
     
     T* allocate(uint32_t size);
     void deallocate(T* ptr) const;
@@ -25,8 +25,7 @@ public:
 //======================================================================================
 
 template<class T>
-allocator<T>::allocator()
-{
+allocator<T>::allocator() {
     ptrs = new T*[PTRS_STEP];
     for (uint32_t i=0; i<PTRS_STEP; ++i)
         ptrs[i] = nullptr;
@@ -34,17 +33,23 @@ allocator<T>::allocator()
 }
 
 template<class T>
-allocator<T>::allocator(const allocator<T>& other)
-{
+allocator<T>::allocator(const allocator<T>& other) {
     ~allocator();
     allocate(other.ptrs_count);
     for (uint32_t i=0; i<ptrs_count; ++i)
         ptrs[i] = other.ptrs[i];
 }
 
+template<class T>
+allocator<T>::~allocator() {
+    for (uint32_t i=0; i<ptrs_count; ++i)
+        if (ptrs[i]!=nullptr)
+            delete[] ptrs[i];
+    delete[] ptrs;
+}
+
 template <class T>
-T* allocator<T>::allocate(uint32_t size)
-{
+T* allocator<T>::allocate(uint32_t size) {
     uint32_t i=0;
     for (; i<ptrs_count && ptrs[i]!=nullptr; ++i) {}
     if (i==ptrs_count) { // need more ptrs
@@ -63,8 +68,7 @@ T* allocator<T>::allocate(uint32_t size)
 }
 
 template<class T>
-void allocator<T>::deallocate(T* ptr) const
-{
+void allocator<T>::deallocate(T* ptr) const {
     for (uint32_t i=0; i<ptrs_count; ++i)
         if (ptrs[i]==ptr) {
             delete[] ptrs[i];
@@ -73,16 +77,12 @@ void allocator<T>::deallocate(T* ptr) const
 }
 
 template<class T>
-void allocator<T>::construct(T* ptr, const T& value) 
-{
-    std::cout << "start_al_constr" << std::endl;
+void allocator<T>::construct(T* ptr, const T& value) {
     new((void*)ptr) T(value);
-    std::cout << "end_al_constr" << std::endl;
 }
 
 template<class T>
-void allocator<T>::destroy(T* ptr)
-{
+void allocator<T>::destroy(T* ptr) {
     ((T*)ptr)->~T();
 }
 

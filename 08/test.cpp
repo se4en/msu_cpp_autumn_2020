@@ -1,21 +1,41 @@
 #include "thread_pool.h"
 
-struct A {};
+#define FAIL(test, result, right_result) std::cout << "[FAIL] " << test << "\n\tget:  " << result << "\n\twant: " << right_result << std::endl; 
+#define OK(test, result, right_result) std::cout << "[OK]   " << test << "\n\tget:  " << result << "\n\twant: " << right_result << std::endl;
 
-void foo(const A&) {return;}
 
-int boo(const A&) {return 10;}
+int sum(int a, int b) { return a+b; }
+int diff(int a, int b) { return a-b; }
 
-int main() {
- 
+void base_work_test() {
     Thread_pool pool(4);
 
+    auto task1 = pool.exec(sum, 3, 2);
+    auto task2 = pool.exec(diff, 3, 2);
+    auto res_1 = task1.get(); 
+    auto res_2 = task2.get();
 
-    auto task1 = pool.exec(boo, A());
-    std::cout << task1.get() << std::endl;
+    if (res_1==5 && res_2==1)
+        OK("base work", res_1 << res_2, "51")
+    else
+        FAIL("base work", res_1 << res_2, "51")
+}
 
-    auto task2 = pool.exec([]() { return 1; });
-    task2.get();
-    
-    //pool.~Thread_pool();
+void multithread_test() {
+    Thread_pool pool(4);
+
+    auto task1 = pool.exec(sum, 3, 2);
+    auto task2 = pool.exec(diff, 3, 2);
+    auto res_1 = task1.get(); 
+    auto res_2 = task2.get();
+
+    if (res_1==5 && res_2==1)
+        OK("base work", res_1 << res_2, "51")
+    else
+        FAIL("base work", res_1 << res_2, "51")
+
+}
+
+int main() {
+    base_work_test();
 }

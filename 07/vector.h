@@ -17,6 +17,7 @@ class vector {
 public:
     vector(); // +
     vector(const vector<T>& other); // +
+    ~vector();
 
     T& operator[](uint32_t index); // +
     void reserve(uint32_t capacity); // +
@@ -57,6 +58,13 @@ vector<T>::vector(const vector<T>& other) {
         al.construct(data_ + i, other.data_[i]); //data[i] = other.data[i];  
 }
 
+template<class T>
+vector<T>::~vector() {
+    for (int i = 0; i < size_; ++i)
+        al.destroy(data_ + i);
+    al.deallocate(data_);
+}
+
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 template<class T>
@@ -68,16 +76,14 @@ T& vector<T>::operator[](uint32_t index) {
 
 template<class T>
 void vector<T>::reserve(uint32_t capacity) {
-    if (capacity_!=capacity) 
-    {
-        T* buffer = al.allocate(capacity); // new T[capacity];
-        if (buffer)
-        {
+    if (capacity_!=capacity) {
+        T* buffer = al.allocate(capacity);
+        if (buffer) {
             for (uint32_t i=0; i<size_; ++i) {
-                al.construct(buffer + i, data_[i]); // buffer[i] = data[i];
+                al.construct(buffer + i, data_[i]); 
                 al.destroy(data_ + i);
             }
-            al.deallocate(data_); // delete[] data;
+            al.deallocate(data_); 
             capacity_ = capacity;
             data_ = buffer;
         }        
@@ -103,7 +109,7 @@ template<class... Args>
 void vector<T>::emplace_back(Args&&... args) {
     if (size_==capacity_)
         reserve(capacity_ + REALL_SIZE);
-    al.construct(data_ + size_, std::move(T(std::forward<Args>(args)...))); // data[++size] = std::move(T(std::forward<Args>(args)...));
+    al.construct(data_ + size_, std::move(T(std::forward<Args>(args)...))); 
     size_++;
 }
 
@@ -126,7 +132,7 @@ template<class T>
 void vector<T>::clear() {
     for (int i=size_; i>0; --i)
         al.destroy(data_ + i - 1);
-    al.deallocate(data_); //delete[] data;
+    al.deallocate(data_); 
     data_ = nullptr;
     size_ = 0;
 }
@@ -134,12 +140,12 @@ void vector<T>::clear() {
 template<class T>
 void vector<T>::resize(uint32_t new_size) {
     if (new_size<size_) {
-        for (int i=size_; i>new_size; --i)
+        for (uint32_t i=size_; i>new_size; --i)
             al.destroy(data_ + i - 1);
     }
     else {
         reserve(new_size);
-        for (int i=size_; i<new_size; ++i)
+        for (uint32_t i=size_; i<new_size; ++i)
             al.construct(data_ + i, T());
     }
     size_ = new_size;
@@ -154,12 +160,12 @@ iterator<T> vector<T>::begin() const {
 
 template<class T>
 iterator<T> vector<T>::end() const {
-    return iterator<T>(data_, size_ + 1);
+    return iterator<T>(data_, size_);
 }
 
 template<class T>
 reverse_iterator<T> vector<T>::rbegin() const {
-    return reverse_iterator<T>(data_, size_);
+    return reverse_iterator<T>(data_, size_ - 1);
 }
 
 template<class T>
