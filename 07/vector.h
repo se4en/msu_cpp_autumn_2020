@@ -38,7 +38,7 @@ public:
     reverse_iterator<T> rend() const; // +
 };
 
-//===================================================================================================
+//=================================================================================================================================================================
 
 template<class T>
 vector<T>::vector() {
@@ -54,13 +54,13 @@ vector<T>::vector(const vector<T>& other) {
     capacity_ = other.capacity_;
     data_ = al.allocate(size_);
     // data = new T[size];
-    for (int i = 0; i < size_; ++i)
+    for (uint32_t i = 0; i < size_; ++i)
         al.construct(data_ + i, other.data_[i]); //data[i] = other.data[i];  
 }
 
 template<class T>
 vector<T>::~vector() {
-    for (int i = 0; i < size_; ++i)
+    for (uint32_t i = 0; i < size_; ++i)
         al.destroy(data_ + i);
     al.deallocate(data_);
 }
