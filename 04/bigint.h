@@ -20,10 +20,10 @@ public:
     Big_int& operator=(Big_int && obj);
     ~Big_int();
 
-    const Big_int operator-() const;
-    const Big_int operator+(const Big_int& obj) const;
-    const Big_int operator-(const Big_int& obj) const;
-    const Big_int operator*(const Big_int& obj) const;
+    Big_int operator-() const;
+    Big_int operator+(const Big_int& obj) const;
+    Big_int operator-(const Big_int& obj) const;
+    Big_int operator*(const Big_int& obj) const;
 
     bool operator<(const Big_int& obj) const;
     bool operator<=(const Big_int& obj) const;

@@ -12,6 +12,7 @@
 class Thread_pool {
     std::vector<std::thread> pool;
     std::queue<std::function<void()>> tasks;
+    uint16_t size;
 
     bool stop;
     std::mutex tasks_mutex;
@@ -21,6 +22,8 @@ class Thread_pool {
 public:
     explicit Thread_pool(size_t pool_size);
     ~Thread_pool();
+
+    uint16_t get_size();
 
     template<class Func, class... Args>
     auto exec(Func func, Args... args) -> std::future<decltype(func(args...))>;
@@ -43,7 +46,10 @@ void Thread_pool::plug_function() {
 
 Thread_pool::Thread_pool(size_t pool_size) {
     stop = false;
-    for(size_t i=0; i<pool_size; ++i)
+    size = std::thread::hardware_concurrency();
+    if (pool_size<=size)
+        size = pool_size;    
+    for(size_t i=0; i<size; ++i)
         pool.emplace_back( // doesnt work with member function
             [this] {
                 while(1) {
@@ -76,7 +82,11 @@ Thread_pool::~Thread_pool() {
     */
     condition.notify_all();
     for(std::thread &worker: pool)
-        worker.join();    
+        worker.join();   
+}
+
+uint16_t Thread_pool::get_size() {
+    return size;
 }
 
 template <class Func, class... Args>

@@ -25,13 +25,7 @@ Big_int::Big_int(std::string int_str) {
         minus = false;
     }
 
-    try { 
-        array = new uint32_t[len];
-    }
-    // if no memory
-    catch(...) {
-        throw "err";
-    }
+    array = new uint32_t[len];
 
     cur_pos = len-1;
     // save first elem
@@ -63,22 +57,21 @@ Big_int::Big_int(std::string int_str) {
 }
 
 Big_int::Big_int(const Big_int& obj) {
-    try { 
-        array = new uint32_t[obj.len];
-        len = obj.len; 
-        minus = obj.minus; 
-        for (int i=0; i<len; ++i)
-            array[i] = obj.array[i];
-    }
-    catch(...) {
-        throw "err";
-    }
+    array = new uint32_t[obj.len];
+    len = obj.len; 
+    minus = obj.minus; 
+
+    std::cout << "here1" << std::endl;
+    for (int i=0; i<len; ++i)
+        array[i] = obj.array[i];
 }
 
 Big_int::Big_int(Big_int && obj) {
     minus = obj.minus;
     len = obj.len;
     array = obj.array;
+    std::cout << "here2" << std::endl;
+    std::cout << (*this) << std::endl;
 
     obj.minus = false;
     obj.len = 0;
@@ -87,16 +80,11 @@ Big_int::Big_int(Big_int && obj) {
 
 Big_int& Big_int::operator=(const Big_int& obj) {
     if (len!=obj.len) {
-        try { 
-            uint32_t* new_array = new uint32_t[obj.len];
-            delete[] array;
-            array = new_array;
-            len = obj.len;  
-            minus = obj.minus;
-        }
-        catch(...) {
-            throw "err";
-        }
+        uint32_t* new_array = new uint32_t[obj.len];
+        delete[] array;
+        array = new_array;
+        len = obj.len;  
+        minus = obj.minus;
     }
     for (int i=0; i<len; ++i)
         array[i] = obj.array[i];
@@ -137,13 +125,13 @@ void Big_int::_resize() {
 
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-const Big_int Big_int::operator-() const {
+Big_int Big_int::operator-() const {
     Big_int new_big_int(*this);
     new_big_int.minus = !(*this).minus;
     return new_big_int;
 }
 
-const Big_int Big_int::operator+(const Big_int& obj) const {
+Big_int Big_int::operator+(const Big_int& obj) const {
     if (!minus && !obj.minus) {
         bool plus_one = false;
         Big_int result;
@@ -195,7 +183,7 @@ const Big_int Big_int::operator+(const Big_int& obj) const {
     }
 }
 
-const Big_int Big_int::operator-(const Big_int& obj) const {
+Big_int Big_int::operator-(const Big_int& obj) const {
     if (!minus && !obj.minus) {
         if ((*this)<obj) 
             return -(obj - (*this));
@@ -244,7 +232,7 @@ const Big_int Big_int::operator-(const Big_int& obj) const {
     }
 }
 
-const Big_int Big_int::operator*(const Big_int& obj) const {
+Big_int Big_int::operator*(const Big_int& obj) const {
     if (minus==obj.minus) {
         bool plus_one = false;
         Big_int result;
@@ -258,24 +246,36 @@ const Big_int Big_int::operator*(const Big_int& obj) const {
         for (; i<obj.len; ++i) {
             for (j=0; j<len; ++j) {
                 uint64_t mul_res =(uint64_t) obj.array[i]*array[j];
+
+                std::cout << mul_res << "=" <<obj.array[i] << "*" << array[j] << std::endl;
+
+
                 uint64_t k = 0; 
                 for (; mul_res; ++k) {
                     result.array[j + i + k] += (mul_res%uint32_t(std::pow(10, BASE)) + (plus_one ? 1: 0));
+
+                    std::cout << "array[" << j + i + k  << "]+=" <<mul_res%uint32_t(std::pow(10, BASE)) + (plus_one ? 1: 0) << std::endl;
+                    
                     mul_res /= std::pow(10, BASE);
                     plus_one = false;
                     if (result.array[j + i + k]>=std::pow(10, BASE)) {
                         result.array[j + i + k]-=std::pow(10, BASE);
                         plus_one = true;
                     }
+
+
+                    std::cout << "array[" << j + i + k  << "]=" <<result.array[j + i + k] << std::endl;
                 }
                 if (plus_one) {
                     result.array[j + i + k]++;
+                    std::cout << "array[" << j + i + k  << "]=" <<result.array[j + i + k] << std::endl;
                     plus_one = false;
                 }
             }
         }
 
         result._resize();
+        std::cout << "here" << result.len << std::endl;
         return result;
     }
     else {
@@ -290,6 +290,7 @@ bool Big_int::operator==(const Big_int& obj) const {
         return false;
     else {
         for (uint64_t i=0; i<len; ++i) {
+            std::cout <<  "1=" <<array[i] << " 2=" << obj.array[i] << std::endl;
             if (array[i]!=obj.array[i])
                 return false;
         }
@@ -341,9 +342,19 @@ std::ostream& operator<<(std::ostream& os, const Big_int& obj) {
     os << obj.array[obj.len-1];
 
     for (int i=obj.len-2; i>=0; --i) {
-        for (int j=pow(10, obj.BASE-1); obj.array[i]/j==0; j/=10) 
-            os << "0";
-        os << obj.array[i];
+        //os << " ";
+        int j=pow(10, obj.BASE-1);
+        if (obj.array[i]==0)
+            os << "000000000";
+        else {
+            for (; obj.array[i]/j==0; j/=10) {
+                os << "0";
+                if (j<10) 
+                    break;
+            }
+            os << obj.array[i];
+        }
+        
     }
     return os;
 }
