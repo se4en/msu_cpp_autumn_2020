@@ -53,9 +53,8 @@ vector<T>::vector(const vector<T>& other) {
     size_ = other.size_;
     capacity_ = other.capacity_;
     data_ = al.allocate(size_);
-    // data = new T[size];
     for (uint32_t i = 0; i < size_; ++i)
-        al.construct(data_ + i, other.data_[i]); //data[i] = other.data[i];  
+        al.construct(data_ + i, other.data_[i]);   
 }
 
 template<class T>

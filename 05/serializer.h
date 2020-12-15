@@ -124,14 +124,8 @@ Error Deserializer::process(T last) {
             return Error::Corrupted_archive;
         
     }
-    else if (std::is_same<T, uint64_t*>::value) {
-        try {
-            *last = stoll(text);     
-        }
-        catch(...) {
-            return Error::Corrupted_archive;
-        }
-    }
+    else if (std::is_same<T, uint64_t*>::value)
+        *last = stoull(text); 
     else 
         return Error::Unsupported_type;
     return Error::No_error;
@@ -139,28 +133,7 @@ Error Deserializer::process(T last) {
 
 template <class T, class... ArgsT>
 Error Deserializer::process(T first, ArgsT... args) {
-    std::string text;
-    in_ >> text;
-
-    if (std::is_same<T, bool*>::value) {
-        if (text=="true")
-            *first = true;
-        else if (text=="false")
-            *first = false;
-        else
-            return Error::Corrupted_archive;
-        
-    }
-    else if (std::is_same<T, uint64_t*>::value) {
-        try {
-            *first = stoll(text);     
-        }
-        catch(...) {
-            return Error::Corrupted_archive;
-        }
-    }
-    else 
-        return Error::Unsupported_type;
+    process(first);
     return process(args...);
 }
 
