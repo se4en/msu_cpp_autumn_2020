@@ -10,12 +10,12 @@ struct Data {
     bool d;
 
     template <class Serializer_>
-    Error serialize(Seriaslizer_& serializer) {
+    Error serialize(Serializer_& serializer) {
         return serializer(a, b, c, d);
     }
 
-    template <class Deerializer_>
-    Error deserialize(Deerializer_& deserializer) {
+    template <class Deserializer_>
+    Error deserialize(Deserializer_& deserializer) {
         return deserializer(&a, &b, &c, &d);
     }
 };

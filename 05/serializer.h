@@ -133,8 +133,11 @@ Error Deserializer::process(T last) {
 
 template <class T, class... ArgsT>
 Error Deserializer::process(T first, ArgsT... args) {
-    process(first);
-    return process(args...);
+    Error cur_err = process(first);
+    if (cur_err==Error::No_error)
+        return process(args...);
+    else 
+        return cur_err;
 }
 
 #endif
