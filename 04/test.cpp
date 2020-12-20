@@ -99,7 +99,6 @@ void operator_mul_test() {
 void new_1_test() {
     Big_int a("99999999999999999999999");
     Big_int b("99999999999999999999999");
-    std::cout << a * b << std::endl; 
     Big_int c = a * b;
 
     if (c==Big_int("9999999999999999999999800000000000000000000001"))
@@ -113,7 +112,6 @@ void new_1_test() {
 void new_2_test() {
     Big_int a("99999999999999999999999");
     Big_int b("0");
-    std::cout << b - a << std::endl; 
     Big_int c = b - a;
 
     if (c==Big_int("-99999999999999999999999"))

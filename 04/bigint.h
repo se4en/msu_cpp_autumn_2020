@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <cmath>
+#include <exception>
+	
 
 class Big_int {
     bool minus;
@@ -13,17 +15,17 @@ class Big_int {
     void _resize();
 public:
     Big_int();
-    Big_int(std::string int_str);
+    Big_int(const std::string& int_str);
     Big_int(const Big_int& obj);
     Big_int(Big_int && obj);
     Big_int& operator=(const Big_int& obj);
     Big_int& operator=(Big_int && obj);
     ~Big_int();
 
-    Big_int operator-() const;
-    Big_int operator+(const Big_int& obj) const;
-    Big_int operator-(const Big_int& obj) const;
-    Big_int operator*(const Big_int& obj) const;
+    const Big_int operator-() const;
+    const Big_int operator+(const Big_int& obj) const;
+    const Big_int operator-(const Big_int& obj) const;
+    const Big_int operator*(const Big_int& obj) const;
 
     bool operator<(const Big_int& obj) const;
     bool operator<=(const Big_int& obj) const;
