@@ -125,7 +125,15 @@ Error Deserializer::process(T last) {
         
     }
     else if (std::is_same<T, uint64_t*>::value)
-        *last = stoull(text); 
+        try {
+            *last = stoull(text); 
+        }
+        catch(std::invalid_argument& err) {
+            return Error::Corrupted_archive;
+        }
+        catch(std::out_of_range& err) {
+            return Error::Corrupted_archive;
+        }
     else 
         return Error::Unsupported_type;
     return Error::No_error;
