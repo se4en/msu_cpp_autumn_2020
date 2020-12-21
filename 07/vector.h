@@ -17,17 +17,22 @@ class vector {
 public:
     vector(); // +
     vector(const vector<T>& other); // +
+    vector(vector<T>&& other); 
+    vector<T>& operator=(const vector<T>& other);
+    vector<T>& operator=(vector<T>&& other);
     ~vector();
 
     T& operator[](uint32_t index); // +
-    void reserve(uint32_t capacity); // +
+    const T& operator[](uint32_t index) const;
+    void reserve(uint32_t capacity);
     void push_back(const T& value); //  +
+    void push_back(T&& value);
     void pop_back(); // +
     template<typename... Args>
     void emplace_back(Args&&... args); // +
-    bool empty(); // +
-    uint32_t size(); // +
-    uint32_t capacity(); // +
+    bool empty() const; // +
+    uint32_t size() const; // +
+    uint32_t capacity() const; // +
     void clear(); // +
     void resize(uint32_t new_size); // +
 
@@ -58,6 +63,43 @@ vector<T>::vector(const vector<T>& other) {
 }
 
 template<class T>
+vector<T>::vector(vector<T>&& other) {
+    capacity_ = other.capacity_;
+    size_ = other.size_;
+    al = other.al;
+    data_ = other.data_;
+    other.capacity_ = 0;
+    other.size_ = 0;
+    other.al = allocator<T>();
+    other.data = nullptr;
+}
+
+template<class T>
+vector<T>& vector<T>::operator=(const vector<T>& other) {
+    size_ = other.size_;
+    capacity_ = other.capacity_;
+    data_ = al.allocate(size_);
+    for (uint32_t i = 0; i < size_; ++i)
+        al.construct(data_ + i, other.data_[i]);   
+    return (*this);
+}
+
+template<class T>
+vector<T>& vector<T>::operator=(vector<T>&& other) {
+    if (this == &other)
+        return (*this);
+    capacity_ = other.capacity_;
+    size_ = other.size_;
+    al = other.al;
+    data_ = other.data_;
+    other.capacity_ = 0;
+    other.size_ = 0;
+    other.al = allocator<T>();
+    other.data = nullptr;
+    return (*this);
+}
+
+template<class T>
 vector<T>::~vector() {
     for (uint32_t i = 0; i < size_; ++i)
         al.destroy(data_ + i);
@@ -74,18 +116,42 @@ T& vector<T>::operator[](uint32_t index) {
 }
 
 template<class T>
+const T& vector<T>::operator[](uint32_t index) const {
+    if (index>=size_)
+        throw std::out_of_range("ERROR: index must be less than size");
+    return data_[index];
+}
+
+template<class T>
 void vector<T>::reserve(uint32_t capacity) {
-    if (capacity_!=capacity) {
+    if (capacity_<capacity) {
         T* buffer = al.allocate(capacity);
         if (buffer) {
             for (uint32_t i=0; i<size_; ++i) {
-                al.construct(buffer + i, data_[i]); 
+                al.construct(buffer + i, std::move(data_[i])); 
                 al.destroy(data_ + i);
             }
             al.deallocate(data_); 
             capacity_ = capacity;
             data_ = buffer;
         }        
+    }
+    else if (capacity_>capacity) {
+        T* buffer = al.allocate(capacity);
+        if (buffer) {
+            uint32_t i=0;
+            for (; i<size_ && i<capacity; ++i) {
+                al.construct(buffer + i, std::move(data_[i])); 
+                al.destroy(data_ + i);
+            }
+            for (; i<size_; ++i) {
+                al.destroy(data_ + i);
+            }
+            al.deallocate(data_); 
+            capacity_ = capacity;
+            size_ = (size_>capacity_) ? capacity_ : size_;
+            data_ = buffer;
+        }
     }
 }
 
@@ -94,6 +160,14 @@ void vector<T>::push_back(const T& value) {
     if (size_==capacity_)
         reserve(capacity_ + REALL_SIZE);
     al.construct(data_ + size_, value);
+    size_++;
+}
+
+template<class T>
+void vector<T>::push_back(T&& value) {
+    if (size_==capacity_)
+        reserve(capacity_ + REALL_SIZE);
+    al.construct(data_ + size_, std::move(value));
     size_++;
 }
 
@@ -108,22 +182,22 @@ template<class... Args>
 void vector<T>::emplace_back(Args&&... args) {
     if (size_==capacity_)
         reserve(capacity_ + REALL_SIZE);
-    al.construct(data_ + size_, std::move(T(std::forward<Args>(args)...))); 
+    al.construct(data_ + size_, T(std::forward<Args>(args)...)); 
     size_++;
 }
 
 template<class T>
-bool vector<T>::empty() {
+bool vector<T>::empty() const {
     return size_==0;
 }
 
 template<class T>
-uint32_t vector<T>::size() {
+uint32_t vector<T>::size() const {
     return size_;
 }
 
 template<class T>
-uint32_t vector<T>::capacity() {
+uint32_t vector<T>::capacity() const {
     return capacity_;
 }
 

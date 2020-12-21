@@ -41,11 +41,11 @@ allocator<T>::allocator(const allocator<T>& other) {
 }
 
 template<class T>
-allocator<T>::~allocator() {
+allocator<T>::~allocator() {/*
     for (uint32_t i=0; i<ptrs_count; ++i)
         if (ptrs[i]!=nullptr)
             delete[] ptrs[i];
-    delete[] ptrs;
+    delete[] ptrs;*/
 }
 
 template <class T>
