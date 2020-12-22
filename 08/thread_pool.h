@@ -17,8 +17,6 @@ class Thread_pool {
     bool stop;
     std::mutex tasks_mutex;
     std::condition_variable condition; // needed unique_lock
-
-    // void plug_function();
 public:
     explicit Thread_pool(size_t pool_size);
     ~Thread_pool();
@@ -28,21 +26,6 @@ public:
     template<class Func, class... Args>
     auto exec(Func func, Args... args) -> std::future<decltype(func(args...))>;
 };
-
-/*
-void Thread_pool::plug_function() {
-    while(1) {
-        std::function<void()> task;
-        {
-            std::unique_lock<std::mutex> lock(tasks_mutex);
-            condition.wait(lock, [this] {return !tasks.empty();});
-            auto task = std::move(tasks.front());
-            tasks.pop();  
-        }
-        task();
-    }
-}
-*/
 
 Thread_pool::Thread_pool(size_t pool_size) {
     stop = false;
@@ -69,20 +52,11 @@ Thread_pool::Thread_pool(size_t pool_size) {
 }
 
 Thread_pool::~Thread_pool() {
-    {
-        stop = true;
-        std::unique_lock<std::mutex> lock(tasks_mutex);
-    }
-    /* it doesnt work
-    std::vector<std::thread>::iterator it = pool.begin();
-    for(; it!=pool.end(); ++it) {
-        std::cout << "join" << std::endl;
-        (*it).join();
-    }
-    */
+    stop = true;
+    
     condition.notify_all();
     for(std::thread &worker: pool)
-        worker.join();   
+        worker.join(); 
 }
 
 uint16_t Thread_pool::get_size() {
