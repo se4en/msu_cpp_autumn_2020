@@ -28,7 +28,7 @@ Big_int::Big_int(const std::string& int_str) {
     try {
         array = new uint32_t[len];
     }
-    catch(std::bad_alloc& err) {
+    catch(const std::bad_alloc& err) {
         std::cout << "Bad construction - no memmory!\n";
         return;
     }
@@ -70,7 +70,7 @@ Big_int::Big_int(const Big_int& obj) {
     try {
         array = new uint32_t[obj.len];
     }
-    catch(std::bad_alloc& err) {
+    catch(const std::bad_alloc& err) {
         std::cout << "Bad construction - no memmory!\n";
         return;
     }
@@ -98,7 +98,7 @@ Big_int& Big_int::operator=(const Big_int& obj) {
             delete[] array;
             array = new_array;
         }
-        catch(std::bad_alloc& err) {
+        catch(const std::bad_alloc& err) {
             std::cout << "Bad construction - no memmory!\n";
         }
         
@@ -130,7 +130,7 @@ Big_int::~Big_int() {
 // delete non-significant zeros
 void Big_int::_resize() {
     uint64_t t = len - 1, ctr = 0;
-    while(!array[t--])
+    while(t>0 && !array[t--])
         ++ctr;
     if (ctr) {
         try {
@@ -141,7 +141,7 @@ void Big_int::_resize() {
             delete[] array;
             array = new_array;
         }
-        catch(std::bad_alloc& err) {
+        catch(const std::bad_alloc& err) {
             std::cout << "Cant resize - no memmory!\n";
             return;
         }
@@ -150,13 +150,13 @@ void Big_int::_resize() {
 
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-const Big_int Big_int::operator-() const {
+Big_int Big_int::operator-() const {
     Big_int new_big_int(*this);
     new_big_int.minus = !(*this).minus;
     return new_big_int;
 }
 
-const Big_int Big_int::operator+(const Big_int& obj) const {
+Big_int Big_int::operator+(const Big_int& obj) const {
     if (!minus && !obj.minus) {
         bool plus_one = false;
         Big_int result;
@@ -165,7 +165,7 @@ const Big_int Big_int::operator+(const Big_int& obj) const {
         try {
             result.array = new uint32_t[result.len];
         }
-        catch(std::bad_alloc& err) {
+        catch(const std::bad_alloc& err) {
             std::cout << "Cant add - no memmory!\n";
             return Big_int("0");
         }
@@ -190,13 +190,21 @@ const Big_int Big_int::operator+(const Big_int& obj) const {
             if (plus_one) {
                 result.array[i]++;
                 plus_one = false;
+                if (result.array[i]>=int(pow(10, BASE))) {
+                    result.array[i]-=int(pow(10, BASE));
+                    plus_one = true;
+                }
             }
         }
         for (; i<obj.len; ++i) {
-            result.array[i] = array[i];
+            result.array[i] = obj.array[i];
             if (plus_one) {
                 result.array[i]++;
                 plus_one = false;
+                if (result.array[i]>=int(pow(10, BASE))) {
+                    result.array[i]-=int(pow(10, BASE));
+                    plus_one = true;
+                }
             }
         }
         
@@ -214,7 +222,7 @@ const Big_int Big_int::operator+(const Big_int& obj) const {
     }
 }
 
-const Big_int Big_int::operator-(const Big_int& obj) const {
+Big_int Big_int::operator-(const Big_int& obj) const {
     if (!minus && !obj.minus) {
         if ((*this)<obj) 
             return -(obj - (*this));
@@ -226,7 +234,7 @@ const Big_int Big_int::operator-(const Big_int& obj) const {
         try {
             result.array = new uint32_t[result.len];
         }
-        catch(std::bad_alloc& err) {
+        catch(const std::bad_alloc& err) {
             std::cout << "Cant subtract - no memmory!\n";
             return Big_int("0");
         }
@@ -269,7 +277,7 @@ const Big_int Big_int::operator-(const Big_int& obj) const {
     }
 }
 
-const Big_int Big_int::operator*(const Big_int& obj) const {
+Big_int Big_int::operator*(const Big_int& obj) const {
     if (minus==obj.minus) {
         bool plus_one = false;
         Big_int result;
@@ -278,7 +286,7 @@ const Big_int Big_int::operator*(const Big_int& obj) const {
         try {
             result.array = new uint32_t[result.len];
         }
-        catch(std::bad_alloc& err) {
+        catch(const std::bad_alloc& err) {
             std::cout << "Cant multiply - no memmory!\n";
             return Big_int("0");
         }
@@ -290,6 +298,9 @@ const Big_int Big_int::operator*(const Big_int& obj) const {
             for (j=0; j<len; ++j) {
                 uint64_t mul_res =(uint64_t) obj.array[i]*array[j];
 
+                if (!mul_res) {
+                    result.array[j + i] = mul_res;
+                }
                 uint64_t k = 0; 
                 for (; mul_res; ++k) {
                     result.array[j + i + k] += (mul_res%uint32_t(std::pow(10, BASE)) + (plus_one ? 1: 0));
