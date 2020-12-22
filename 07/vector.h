@@ -76,11 +76,18 @@ vector<T>::vector(vector<T>&& other) {
 
 template<class T>
 vector<T>& vector<T>::operator=(const vector<T>& other) {
-    size_ = other.size_;
-    capacity_ = other.capacity_;
-    data_ = al.allocate(size_);
-    for (uint32_t i = 0; i < size_; ++i)
-        al.construct(data_ + i, other.data_[i]);   
+    try {
+        T* buffer = al.allocate(size_); 
+        al.deallocate(data_);
+        data_ = buffer;
+        size_ = other.size_;
+        capacity_ = other.capacity_;
+        for (uint32_t i = 0; i < size_; ++i)
+            al.construct(data_ + i, other.data_[i]);   
+    }
+    catch (const std::bad_alloc& err) {
+        std::cout << "Copy error - no free memmory!" << std::endl;
+    }
     return (*this);
 }
 
@@ -90,8 +97,9 @@ vector<T>& vector<T>::operator=(vector<T>&& other) {
         return (*this);
     capacity_ = other.capacity_;
     size_ = other.size_;
-    al = other.al;
+    al.deallocate(data_);
     data_ = other.data_;
+    al = other.al;
     other.capacity_ = 0;
     other.size_ = 0;
     other.al = allocator<T>();
@@ -136,23 +144,6 @@ void vector<T>::reserve(uint32_t capacity) {
             capacity_ = capacity;
             data_ = buffer;
         }        
-    }
-    else if (capacity_>capacity) {
-        T* buffer = al.allocate(capacity);
-        if (buffer) {
-            uint32_t i=0;
-            for (; i<size_ && i<capacity; ++i) {
-                al.construct(buffer + i, std::move(data_[i])); 
-                al.destroy(data_ + i);
-            }
-            for (; i<size_; ++i) {
-                al.destroy(data_ + i);
-            }
-            al.deallocate(data_); 
-            capacity_ = capacity;
-            size_ = (size_>capacity_) ? capacity_ : size_;
-            data_ = buffer;
-        }
     }
 }
 

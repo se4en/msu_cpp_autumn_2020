@@ -50,7 +50,7 @@ T* allocator<T>::allocate(uint32_t size) {
     uint32_t i=0;
     for (;i<MAX_PTRS && ptrs[i]!=nullptr; ++i) {}
     if (i==MAX_PTRS)
-        throw "No memory!";
+        throw std::bad_alloc();
     ptrs[i] = new T[size];
     ptrs_count++;
     return ptrs[i];

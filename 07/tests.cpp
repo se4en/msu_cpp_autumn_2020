@@ -120,13 +120,13 @@ void reserve_capacity_test() {
     vector<char> char_vec;
     char_vec.push_back('a');
     char_vec.push_back('b');
-    char_vec.reserve(10);
+    char_vec.reserve(20);
     uint32_t cap = char_vec.capacity();
 
-    if (cap==10)
-        OK("reserve", cap, 10)
+    if (cap==20)
+        OK("reserve", cap, 20)
     else
-        FAIL("reserve", cap, 10)
+        FAIL("reserve", cap, 20)
 }
     
 void resize_test() {
@@ -145,11 +145,16 @@ void resize_test() {
 
 void reserve_capacity_test_2() {
     vector<char> char_vec;
-    /*char_vec.push_back('a');
+    char_vec.push_back('a');
     char_vec.push_back('b');
     char_vec.push_back('d');
     char_vec.reserve(2);
-    uint32_t size = char_vec.size();*/
+    uint32_t size = char_vec.size();
+
+    if (size==3)
+        OK("reserve_2", size, "3")
+    else
+        FAIL("reserve_2", size, "3")
 }
 
 int main() {
