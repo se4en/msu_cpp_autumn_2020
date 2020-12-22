@@ -52,8 +52,10 @@ Thread_pool::Thread_pool(size_t pool_size) {
 }
 
 Thread_pool::~Thread_pool() {
-    stop = true;
-    
+    {
+        std::unique_lock<std::mutex> lock(tasks_mutex);
+        stop = true;
+    }
     condition.notify_all();
     for(std::thread &worker: pool)
         worker.join(); 
