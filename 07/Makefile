@@ -9,6 +9,11 @@ tests.o:
 test: clean tests.o
 	./test
 
+valgrind: clean tests.o
+	valgrind --leak-check=full \
+         --show-leak-kinds=all \
+		 ./test
+
 clean:
 	rm -f *.o
 	rm -f test

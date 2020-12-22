@@ -103,7 +103,8 @@ template<class T>
 vector<T>::~vector() {
     for (uint32_t i = 0; i < size_; ++i)
         al.destroy(data_ + i);
-    al.deallocate(data_);
+    if (data_!=nullptr)
+        al.deallocate(data_);
 }
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -145,27 +145,22 @@ void resize_test() {
 
 void reserve_capacity_test_2() {
     vector<char> char_vec;
-    char_vec.push_back('a');
+    /*char_vec.push_back('a');
     char_vec.push_back('b');
-    char_vec.push_back('с');
+    char_vec.push_back('d');
     char_vec.reserve(2);
-    uint32_t size = char_vec.size();
-
-    if (size==2)
-        OK("reserve_2", size, 2)
-    else
-        FAIL("reserve_2", size, 2)
+    uint32_t size = char_vec.size();*/
 }
 
 int main() {
     emplace_back_test();
-    push_back_test();
-    size_pop_test();
-    empty_test();
-    clear_test();
-    begin_rbegin_test();
-    end_rend_test();
-    reserve_capacity_test();
+    push_back_test(); 
+    size_pop_test(); 
+    empty_test(); 
+    clear_test(); 
+    begin_rbegin_test(); 
+    end_rend_test(); 
+    reserve_capacity_test(); 
     resize_test();
-    reserve_capacity_test_2();
+    reserve_capacity_test_2(); 
 }

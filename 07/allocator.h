@@ -4,11 +4,11 @@
 #include <stdint.h>
 #include <iostream>
 
-#define PTRS_STEP 4
+#define MAX_PTRS 16 
 
 template <class T>
 class allocator {
-    T** ptrs;
+    T* ptrs[MAX_PTRS];
     uint32_t ptrs_count;
 public:
     allocator();
@@ -16,7 +16,7 @@ public:
     ~allocator();
     
     T* allocate(uint32_t size);
-    void deallocate(T* ptr) const;
+    void deallocate(T* ptr);
 
     void construct(T* ptr, const T& value);
     void destroy(T* ptr);
@@ -26,53 +26,43 @@ public:
 
 template<class T>
 allocator<T>::allocator() {
-    ptrs = new T*[PTRS_STEP];
-    for (uint32_t i=0; i<PTRS_STEP; ++i)
+    for (uint32_t i=0; i<MAX_PTRS; ++i)
         ptrs[i] = nullptr;
-    ptrs_count = PTRS_STEP;
+    //ptrs_count = 0;
 }
 
 template<class T>
 allocator<T>::allocator(const allocator<T>& other) {
     ~allocator();
-    allocate(other.ptrs_count);
     for (uint32_t i=0; i<ptrs_count; ++i)
         ptrs[i] = other.ptrs[i];
 }
 
 template<class T>
-allocator<T>::~allocator() {/*
-    for (uint32_t i=0; i<ptrs_count; ++i)
+allocator<T>::~allocator() {
+    for (uint32_t i=0; i<MAX_PTRS; ++i) 
         if (ptrs[i]!=nullptr)
             delete[] ptrs[i];
-    delete[] ptrs;*/
 }
 
 template <class T>
 T* allocator<T>::allocate(uint32_t size) {
     uint32_t i=0;
-    for (; i<ptrs_count && ptrs[i]!=nullptr; ++i) {}
-    if (i==ptrs_count) { // need more ptrs
-        T** new_ptrs = new T*[ptrs_count + PTRS_STEP];
-        uint32_t j=0;
-        for (; j<ptrs_count; ++j)
-            new_ptrs[j] = ptrs[j];
-        for (; j<ptrs_count + PTRS_STEP; ++j)
-            new_ptrs[j] = nullptr;
-        delete[] ptrs;
-        ptrs = new_ptrs;
-        ptrs_count += PTRS_STEP;
-    }
+    for (;i<MAX_PTRS && ptrs[i]!=nullptr; ++i) {}
+    if (i==MAX_PTRS)
+        throw "No memory!";
     ptrs[i] = new T[size];
+    ptrs_count++;
     return ptrs[i];
 }
 
 template<class T>
-void allocator<T>::deallocate(T* ptr) const {
-    for (uint32_t i=0; i<ptrs_count; ++i)
+void allocator<T>::deallocate(T* ptr) {
+    for (uint32_t i=0; i<MAX_PTRS; ++i)
         if (ptrs[i]==ptr) {
             delete[] ptrs[i];
             ptrs[i] = nullptr;
+            break;
         }
 }
 
